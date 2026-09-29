@@ -1,0 +1,16 @@
+# Netlify detecteert Next.js automatisch en gebruikt de OpenNext-adapter
+# (@netlify/plugin-nextjs). Niet vastpinnen: Netlify houdt hem zelf up-to-date.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# www → hoofddomein
+[[redirects]]
+  from = "https://www.5321938.nl/*"
+  to = "https://5321938.nl/:splat"
+  status = 301
+  force = true

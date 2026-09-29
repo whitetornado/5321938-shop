@@ -6,7 +6,7 @@ export function CompanyBlock() {
   if (!c.name)
     return (
       <p className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-        ⚠️ Vul NEXT_PUBLIC_COMPANY_NAME / ADDRESS / KVK / BTW in (Vercel env) — deze gegevens zijn wettelijk verplicht.
+        ⚠️ Vul NEXT_PUBLIC_COMPANY_NAME / ADDRESS / KVK / BTW in (Netlify environment variables) — deze gegevens zijn wettelijk verplicht.
       </p>
     );
   return (

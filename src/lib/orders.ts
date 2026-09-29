@@ -19,7 +19,10 @@ export async function getOrderWithItems(id: string) {
  * verstuurt mails + Sendcloud. Wordt aangeroepen vanuit de Stripe webhook én
  * (als vangnet) vanaf de bedankpagina — wie als eerste komt, doet het werk.
  */
-export async function finalizeOrder(sessionOrId: string | Stripe.Checkout.Session) {
+export async function finalizeOrder(
+  sessionOrId: string | Stripe.Checkout.Session,
+  opts: { ensure?: boolean } = {},
+) {
   const session =
     typeof sessionOrId === "string"
       ? await stripe().checkout.sessions.retrieve(sessionOrId, {
@@ -76,7 +79,12 @@ export async function finalizeOrder(sessionOrId: string | Stripe.Checkout.Sessio
     .maybeSingle();
 
   if (error) throw new Error(error.message);
-  if (!claimed) return null; // al verwerkt
+  if (!claimed) {
+    // Al geclaimd. Bij een webhook-retry (bv. na een function-timeout) de
+    // ontbrekende stappen alsnog afmaken — mails/Sendcloud zijn idempotent.
+    if (opts.ensure) await completeOrder(orderId);
+    return null;
+  }
 
   const order = claimed as Order;
   const { data: itemsData } = await db.from("order_items").select("*").eq("order_id", order.id);
@@ -96,6 +104,22 @@ export async function finalizeOrder(sessionOrId: string | Stripe.Checkout.Sessio
   }
 
   return order; // let op: revalidatePath gebeurt in de webhook-route (mag niet tijdens render)
+}
+
+/** Maakt mails + Sendcloud af voor een betaalde order als die stappen nog ontbreken. */
+async function completeOrder(orderId: string) {
+  const order = await getOrderWithItems(orderId);
+  if (!order || !["paid", "processing"].includes(order.status)) return;
+  await sendOrderEmails(order, order.order_items);
+  if (
+    order.shipping_method !== "pickup" &&
+    !order.sendcloud_parcel_id &&
+    process.env.SENDCLOUD_AUTO_CREATE !== "false"
+  ) {
+    await pushToSendcloud(order, order.order_items).catch((err) =>
+      console.error("Sendcloud aanmaken mislukt", order.id, err),
+    );
+  }
 }
 
 export async function sendOrderEmails(order: Order, items: OrderItem[], force = false) {

@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         <li><strong>Stripe</strong> — betalingen</li>
         <li><strong>Sendcloud</strong> en de vervoerder (bv. PostNL/DHL) — verzending en track &amp; trace</li>
         <li><strong>Resend</strong> — versturen van transactionele e-mails</li>
-        <li><strong>Supabase</strong> en <strong>Vercel</strong> — hosting en database</li>
+        <li><strong>Supabase</strong> en <strong>Netlify</strong> — hosting en database</li>
       </ul>
       <p>Met al deze partijen zijn (verwerkers)afspraken gemaakt. We verkopen je gegevens nooit.</p>
       <h2>Cookies</h2>

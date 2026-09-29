@@ -1,6 +1,6 @@
 # 5321938.nl — supporters shirt shop
 
-Tijdelijke webshop voor supportersshirts. Stack: **Next.js 16 (App Router) · Supabase · Stripe Checkout · Resend · Sendcloud · Vercel**.
+Tijdelijke webshop voor supportersshirts. Stack: **Next.js 16 (App Router) · Supabase · Stripe Checkout · Resend · Sendcloud · Netlify**.
 
 ## Wat zit erin
 
@@ -65,13 +65,21 @@ Voeg het domein `5321938.nl` toe en zet de DNS-records (SPF/DKIM) bij je registr
 2. Zet in die integratie de **Webhook feedback** aan, met URL `https://5321938.nl/api/sendcloud/webhook`.
 3. Na betaling verschijnt de order onder "Te verwerken". Maak daar het label aan; de klant krijgt dan automatisch de track & trace-mail.
 
-### 6. Vercel + domein
-1. Push naar GitHub en importeer de repo in Vercel.
-2. Zet **alle** variabelen uit `.env.example` onder Settings → Environment Variables. Zet `NEXT_PUBLIC_SITE_URL=https://5321938.nl`.
-3. Voeg onder Domains `5321938.nl` en `www.5321938.nl` toe (www stuurt door naar de hoofddomeinnaam) en zet de DNS-records die Vercel aangeeft.
-4. Deploy en ga naar `/admin`. Voeg een shirt toe, zet het online en klaar.
+### 6. Netlify + domein
+1. Push naar GitHub → Netlify: **Add new site → Import an existing project** → kies de repo.
+   Netlify herkent Next.js zelf (OpenNext-adapter); build-instellingen komen uit `netlify.toml` (Node 22, `npm run build`, publish `.next`).
+2. **Site configuration → Environment variables**: zet **alle** variabelen uit `.env.example` (scope: *All*), met `NEXT_PUBLIC_SITE_URL=https://5321938.nl`.
+   Let op: `NEXT_PUBLIC_*` worden bij de build ingebakken → na wijzigen opnieuw deployen (*Deploys → Trigger deploy → Clear cache and deploy*).
+3. **Domain management** → voeg `5321938.nl` toe (en `www.5321938.nl`). Gebruik Netlify DNS, of zet bij je registrar: `A @ → 75.2.60.5` en `CNAME www → <jouwsite>.netlify.app`. HTTPS (Let's Encrypt) gaat automatisch. `www` → hoofddomein staat al in `netlify.toml`.
+4. Deploy → ga naar `/admin` → voeg een shirt toe → zet online. Klaar.
 
-`ADMIN_SESSION_SECRET` genereer je bijvoorbeeld met `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`.
+`ADMIN_SESSION_SECRET` genereer je met: `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`
+
+**Netlify-specifiek**
+- Serverfuncties hebben standaard een tijdslimiet van **10 s**. De Stripe-webhook blijft daar ruim onder; mocht hij toch afbreken, dan probeert Stripe opnieuw en maakt de webhook ontbrekende mails/Sendcloud-zending alsnog af (zonder dubbele voorraadafboeking).
+- `/admin` wordt beveiligd door `src/proxy.ts`; Netlify draait dat als Edge Function.
+- Productfoto's lopen via de Netlify Image CDN (automatisch via `next/image`).
+- Deploy previews (per branch/PR) gebruiken dezelfde env vars — gebruik daar bij voorkeur Stripe **test**-keys via *deploy contexts*.
 
 ---
 
@@ -80,7 +88,7 @@ Voeg het domein `5321938.nl` toe en zet de DNS-records (SPF/DKIM) bij je registr
 - [ ] Voorwaarden, privacy en retour doorgelezen en eventueel aangepast (`src/app/(shop)/…`)
 - [ ] Testbestelling met Stripe **testmodus** gedaan: mails ontvangen, order in de admin, zending in Sendcloud
 - [ ] Label gemaakt in Sendcloud en verzendmail ontvangen
-- [ ] Stripe op **live** gezet: live keys en een nieuwe live webhook secret
+- [ ] Stripe op **live** gezet: live keys en een nieuwe live webhook secret (in Netlify → Production context) en opnieuw gedeployd
 - [ ] Deellink getest in WhatsApp (OG-afbeelding). Cache van Facebook vernieuwen kan via de Sharing Debugger.
 
 ## Handig om te weten

@@ -5,7 +5,6 @@ import { finalizeOrder } from "@/lib/orders";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
       case "checkout.session.async_payment_succeeded": {
         const s = event.data.object as Stripe.Checkout.Session;
         if (s.payment_status === "paid") {
-          await finalizeOrder(s.id); // re-fetch met expand
+          await finalizeOrder(s.id, { ensure: true }); // re-fetch met expand
           revalidatePath("/", "layout"); // voorraad kan veranderd zijn
         }
         break;

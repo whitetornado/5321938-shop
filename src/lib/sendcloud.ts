@@ -77,6 +77,7 @@ export async function createSendcloudParcel(order: Order, items: OrderItem[]) {
     headers: { Authorization: auth(), "Content-Type": "application/json" },
     body: JSON.stringify(body),
     cache: "no-store",
+    signal: AbortSignal.timeout(6000), // Netlify functions: 10s limiet
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
