@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 
 type Img = { src: string; label: string };
@@ -101,8 +102,8 @@ export function ProductGallery({ images, name }: { images: Img[]; name: string }
         </div>
       )}
 
-      {zoom && (
-        <div className="animate-fade-in fixed inset-0 z-[60] flex items-center justify-center bg-black/95" role="dialog" aria-modal="true" aria-label={cur.label}>
+      {zoom && createPortal(
+        <div className="animate-fade-in fixed inset-0 z-[100] flex items-center justify-center bg-black/95" role="dialog" aria-modal="true" aria-label={cur.label}>
           <button onClick={() => setZoom(false)} className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label="Sluiten">
             <X className="size-5" />
           </button>
@@ -122,7 +123,8 @@ export function ProductGallery({ images, name }: { images: Img[]; name: string }
               </button>
             </>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
