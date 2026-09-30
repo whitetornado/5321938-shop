@@ -110,6 +110,14 @@ export async function POST(req: Request) {
     });
   }
 
+  // Lokaal (npm run dev op poort 3000/3003/…) terugsturen naar de poort waar je nu zit;
+  // in productie altijd naar NEXT_PUBLIC_SITE_URL.
+  const reqOrigin = new URL(req.url).origin;
+  const base =
+    process.env.NODE_ENV !== "production" && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(reqOrigin)
+      ? reqOrigin
+      : site.url;
+
   const toAbs = (u: string | null) => (u && /^https:\/\//.test(u) ? [u] : undefined);
 
   try {
@@ -150,8 +158,8 @@ export async function POST(req: Request) {
             message: `Door te betalen ga je akkoord met onze algemene voorwaarden (${site.url}/voorwaarden).`,
           },
         },
-        success_url: `${site.url}/bedankt?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${site.url}/winkelwagen?geannuleerd=1`,
+        success_url: `${base}/bedankt?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${base}/winkelwagen?geannuleerd=1`,
       },
       { idempotencyKey: `checkout-${order.id}` },
     );
