@@ -7,6 +7,8 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+  # Turbopack-buildcache bevat env-waarden; wordt niet gepubliceerd → niet scannen.
+  SECRETS_SCAN_OMIT_PATHS = ".next/cache/**,.netlify/.next/cache/**"
 
 # www → hoofddomein
 [[redirects]]
