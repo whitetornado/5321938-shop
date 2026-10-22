@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { deleteProduct, saveProduct, type ProductInput } from "@/app/admin/actions";
-import { DEFAULT_SIZE_CHART, DEFAULT_SIZES, KIDS_SIZES } from "@/lib/config";
+import { DEFAULT_SIZE_CHART, DEFAULT_SIZES, KIDS_SIZES, ONE_SIZE } from "@/lib/config";
 import { slugify } from "@/lib/format";
 import type { Product, SizeChart } from "@/lib/types";
 import { ImageUpload, uploadImage } from "./ImageUpload";
@@ -64,7 +64,7 @@ export function ProductForm({ product }: { product?: Product }) {
     setVariants((vs) => (has(size) ? vs.filter((v) => v.size !== size) : [...vs, { size, stock: "", is_active: true }]));
   const addPreset = (sizes: string[]) =>
     setVariants((vs) => [...vs, ...sizes.filter((s) => !vs.some((v) => v.size === s)).map((size) => ({ size, stock: "", is_active: true }))]);
-  const orderedAll = [...DEFAULT_SIZES, ...KIDS_SIZES];
+  const orderedAll = [...ONE_SIZE, ...DEFAULT_SIZES, ...KIDS_SIZES];
   const sortVariants = () =>
     setVariants((vs) =>
       [...vs].sort((a, b) => {

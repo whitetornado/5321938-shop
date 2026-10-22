@@ -6,6 +6,7 @@ const items = [
   { href: "/admin", label: "Overzicht" },
   { href: "/admin/producten", label: "Shirts" },
   { href: "/admin/bestellingen", label: "Bestellingen" },
+  { href: "/admin/toegangscodes", label: "Codes" },
   { href: "/admin/instellingen", label: "Instellingen" },
 ];
 

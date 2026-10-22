@@ -5,6 +5,7 @@ import { site } from "@/lib/config";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (process.env.ACCESS_CODE_REQUIRED === "true") return []; // besloten shop
   const products = await getActiveProducts();
   const staticPages = ["", "/maattabel", "/verzending", "/retourneren", "/contact", "/voorwaarden", "/privacy"];
   return [

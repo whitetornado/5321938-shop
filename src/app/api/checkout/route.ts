@@ -5,6 +5,7 @@ import { stripe, type Stripe } from "@/lib/stripe";
 import { shipping, site } from "@/lib/config";
 import { isAvailable } from "@/lib/products";
 import { orderNo } from "@/lib/format";
+import { checkAccess } from "@/lib/access";
 import type { Product, Variant } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,11 @@ export async function POST(req: Request) {
   // Dubbele varianten samenvoegen
   const wanted = new Map<string, number>();
   for (const l of parsed.data.lines) wanted.set(l.variantId, (wanted.get(l.variantId) ?? 0) + l.quantity);
+
+  // Toegangscode (alleen als ACCESS_CODE_REQUIRED=true)
+  const access = await checkAccess();
+  if (access.required && !access.ok) return NextResponse.json({ error: access.error }, { status: 403 });
+  const accessCode = access.required && access.ok ? access.code : null;
 
   const db = supabaseAdmin();
 
@@ -74,7 +80,13 @@ export async function POST(req: Request) {
 
   const { data: order, error: oErr } = await db
     .from("orders")
-    .insert({ status: "pending", subtotal_cents: subtotal, total_cents: subtotal })
+    .insert({
+      status: "pending",
+      subtotal_cents: subtotal,
+      total_cents: subtotal,
+      access_code_id: accessCode?.id ?? null,
+      access_label: accessCode ? [accessCode.label, accessCode.code].filter(Boolean).join(" · ") : null,
+    })
     .select("id, order_number")
     .single();
   if (oErr || !order) return NextResponse.json({ error: "Bestelling aanmaken mislukt" }, { status: 500 });

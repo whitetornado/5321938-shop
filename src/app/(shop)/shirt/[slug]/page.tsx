@@ -7,7 +7,6 @@ import { DEFAULT_SIZE_CHART, shipping, site } from "@/lib/config";
 import { dateNL, money } from "@/lib/format";
 import { ProductGallery } from "@/components/shop/ProductGallery";
 import { BuyBox } from "@/components/shop/BuyBox";
-import { ShareButtons } from "@/components/shop/ShareButtons";
 import { Countdown } from "@/components/shop/Countdown";
 import { HowToMeasure, SizeChartTable } from "@/components/shop/SizeChartTable";
 
@@ -173,10 +172,6 @@ export default async function ProductPage({ params }: Props) {
                   Niet goed? Ruilen of retourneren kan binnen 14 dagen. <Link href="/retourneren" className="underline">Meer info</Link>
                 </p>
               </Section>
-            </div>
-
-            <div className="mt-6">
-              <ShareButtons url={url} title={product.name} />
             </div>
           </div>
         </div>

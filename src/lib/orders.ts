@@ -90,6 +90,9 @@ export async function finalizeOrder(
   const { data: itemsData } = await db.from("order_items").select("*").eq("order_id", order.id);
   const items = (itemsData ?? []) as OrderItem[];
 
+  // Toegangscode: betaalde bestelling meetellen
+  if (order.access_code_id) await db.rpc("increment_access_code_use", { p_id: order.access_code_id });
+
   // Voorraad verlagen
   for (const i of items) {
     if (i.variant_id) await db.rpc("decrement_stock", { p_variant: i.variant_id, p_qty: i.quantity });

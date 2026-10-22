@@ -245,3 +245,53 @@ export async function saveSettings(input: {
   revalidateShop();
   return { ok: true, message: "Instellingen opgeslagen" };
 }
+
+/* ------------------------------------------------------------------ */
+/* Toegangscodes                                                       */
+/* ------------------------------------------------------------------ */
+export async function createAccessCodes(input: {
+  labels: string[]; // één code per naam; lege lijst + count = anonieme codes
+  count?: number;
+  prefix?: string;
+  customCode?: string;
+  maxUses?: number | null;
+}): Promise<Result> {
+  await requireAdmin();
+  const { generateCode } = await import("@/lib/access");
+  const { normalizeCode } = await import("@/lib/access-session");
+  const prefix = (input.prefix ?? "GHC").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  const labels = input.labels.map((l) => l.trim()).filter(Boolean).slice(0, 500);
+  const n = labels.length || Math.min(Math.max(input.count ?? 1, 1), 500);
+  const maxUses = input.maxUses && input.maxUses > 0 ? Math.floor(input.maxUses) : null;
+
+  const rows = Array.from({ length: n }, (_, i) => ({
+    code: n === 1 && input.customCode ? normalizeCode(input.customCode) : generateCode(prefix),
+    label: labels[i] ?? null,
+    max_uses: maxUses,
+  }));
+  if (rows.some((r) => r.code.length < 4)) return { ok: false, error: "Code is te kort (min. 4 tekens)" };
+
+  const { error } = await supabaseAdmin().from("access_codes").insert(rows);
+  if (error) return { ok: false, error: error.code === "23505" ? "Deze code bestaat al" : error.message };
+  revalidatePath("/admin/toegangscodes");
+  return { ok: true, message: `${n} code${n > 1 ? "s" : ""} aangemaakt` };
+}
+
+export async function updateAccessCode(
+  id: string,
+  patch: { is_active?: boolean; label?: string | null; max_uses?: number | null },
+): Promise<Result> {
+  await requireAdmin();
+  const { error } = await supabaseAdmin().from("access_codes").update(patch).eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/toegangscodes");
+  return { ok: true, message: patch.is_active === false ? "Code geblokkeerd" : patch.is_active ? "Code actief" : "Opgeslagen" };
+}
+
+export async function deleteAccessCode(id: string): Promise<Result> {
+  await requireAdmin();
+  const { error } = await supabaseAdmin().from("access_codes").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/toegangscodes");
+  return { ok: true, message: "Code verwijderd" };
+}

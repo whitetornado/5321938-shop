@@ -88,6 +88,8 @@ export type Order = {
   tracking_number: string | null;
   tracking_url: string | null;
   admin_note: string | null;
+  access_code_id?: string | null;
+  access_label?: string | null;
   confirmation_sent_at: string | null;
   admin_notified_at: string | null;
   shipped_email_sent_at: string | null;

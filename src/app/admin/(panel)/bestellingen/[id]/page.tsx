@@ -56,6 +56,9 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               <p className="mt-2">{order.name}</p>
               <p><a className="underline" href={`mailto:${order.email}`}>{order.email}</a></p>
               {order.phone && <p><a className="underline" href={`tel:${order.phone}`}>{order.phone}</a></p>}
+              {order.access_label && (
+                <p className="mt-2 inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium">Code: {order.access_label}</p>
+              )}
             </div>
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">{order.shipping_method === "pickup" ? "Afhalen" : "Bezorgadres"}</h2>

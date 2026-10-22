@@ -45,6 +45,7 @@ export const publicShipping = (): PublicShipping => ({
 export const VAT_RATE = 0.21;
 
 export const DEFAULT_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL"];
+export const ONE_SIZE = ["One size"];
 export const KIDS_SIZES = ["98/104", "110/116", "122/128", "134/146", "152/164"];
 
 export const DEFAULT_SIZE_CHART = {

@@ -9,7 +9,6 @@ import { money, orderNo, vatOf } from "@/lib/format";
 import { site } from "@/lib/config";
 import type { Order, OrderItem } from "@/lib/types";
 import { ClearCart } from "@/components/shop/ClearCart";
-import { ShareButtons } from "@/components/shop/ShareButtons";
 import { StatusRefresher } from "@/components/shop/StatusRefresher";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +58,7 @@ export default async function PaymentStatus({ searchParams }: { searchParams: Pr
 
       <StatusHeader state={state} orderNumber={order?.order_number} />
 
+      {/* Acties bij niet-geslaagde betaling */}
       {state === "open" && session.url && (
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href={session.url} className="btn-primary">Verder met betalen</a>
@@ -72,6 +72,7 @@ export default async function PaymentStatus({ searchParams }: { searchParams: Pr
         </div>
       )}
 
+      {/* Voortgang */}
       {(state === "paid" || state === "processing") && (
         <ol className="mt-10 grid grid-cols-4 gap-2 text-center text-xs">
           {[
@@ -94,6 +95,7 @@ export default async function PaymentStatus({ searchParams }: { searchParams: Pr
         </ol>
       )}
 
+      {/* Overzicht */}
       {items.length > 0 && (
         <section className="card mt-10 overflow-hidden">
           <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
@@ -126,6 +128,7 @@ export default async function PaymentStatus({ searchParams }: { searchParams: Pr
         </section>
       )}
 
+      {/* Wat nu */}
       {state === "paid" && (
         <>
           <ul className="mt-8 space-y-3 text-sm text-zinc-600">
@@ -145,12 +148,6 @@ export default async function PaymentStatus({ searchParams }: { searchParams: Pr
               <span>Zodra je pakket onderweg is, ontvang je de track &amp; trace-code per e-mail.</span>
             </li>
           </ul>
-          <div className="mt-10 rounded-2xl bg-zinc-50 p-5 text-center">
-            <p className="mb-3 font-semibold">Maak je clubgenoten jaloers 😉</p>
-            <div className="flex justify-center">
-              <ShareButtons url={site.url} title={site.tagline} />
-            </div>
-          </div>
         </>
       )}
 

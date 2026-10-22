@@ -17,7 +17,7 @@ export async function GET() {
     .select("*, order_items(*)")
     .in("status", ["paid", "processing", "shipped", "delivered"])
     .order("order_number");
-  const header = ["Order", "Datum", "Status", "Naam", "E-mail", "Telefoon", "Adres", "Postcode", "Plaats", "Land", "Verzendwijze", "Shirt", "Maat", "Aantal", "Stukprijs", "Ordertotaal", "Track&Trace"];
+  const header = ["Order", "Datum", "Status", "Naam", "E-mail", "Telefoon", "Adres", "Postcode", "Plaats", "Land", "Verzendwijze", "Shirt", "Maat", "Aantal", "Stukprijs", "Ordertotaal", "Track&Trace", "Toegangscode"];
   const lines = [header.join(";")];
   for (const o of (data ?? []) as (Order & { order_items: OrderItem[] })[]) {
     const a = o.shipping_address ?? {};
@@ -27,7 +27,7 @@ export async function GET() {
           orderNo(o.order_number), o.paid_at ?? o.created_at, o.status, o.name, o.email, o.phone,
           [a.line1, a.line2].filter(Boolean).join(" "), a.postal_code, a.city, a.country, o.shipping_label,
           i.product_name, i.size, i.quantity, (i.unit_price_cents / 100).toFixed(2).replace(".", ","),
-          (o.total_cents / 100).toFixed(2).replace(".", ","), o.tracking_number,
+          (o.total_cents / 100).toFixed(2).replace(".", ","), o.tracking_number, o.access_label,
         ].map(esc).join(";"),
       );
     }
